@@ -6,7 +6,7 @@ const Home = () => {
 
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [Res, setRes] = useState('rien');
+    const [Res, setRes] = useState();
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
@@ -19,7 +19,7 @@ const Home = () => {
 
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
-        alert(`QRCode : \n` + `${data}`);
+        // alert(`QRCode : \n` + `${data}`);
         setRes(data)
     };
 
