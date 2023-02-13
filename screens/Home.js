@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Button } from 'react-native'
+import { Text, View, StyleSheet, Button, TextBase } from 'react-native'
 import { useEffect, useState } from 'react';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
@@ -6,6 +6,7 @@ const Home = () => {
 
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
+    const [Res, setRes] = useState('rien');
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
@@ -19,26 +20,29 @@ const Home = () => {
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
         alert(`QRCode : \n` + `${data}`);
+        setRes(data)
     };
 
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        return <Text>En attente d'accès à la caméra</Text>;
     }
     if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
+        return <Text>Impossible d'accéder à la caméra</Text>;
     }
 
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Scanner un QRCode</Text>
-            <View style={styles.conn}>
 
+            <View style={styles.conn}>
                 <BarCodeScanner
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                    style={StyleSheet.absoluteFillObject}
+                    style={{ height: 400, width: 400 }}
                 />
-                {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
             </View>
+            <Text style={styles.textRes}>{Res}</Text>
+            {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+
         </View>
     )
 }
@@ -49,7 +53,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'center',
         margin: 0,
     },
     text: {
@@ -58,9 +62,15 @@ const styles = StyleSheet.create({
         color: "#003147",
         fontWeight: "bold",
     },
+    textRes: {
+        marginVertical: 20,
+        fontSize: 20,
+        color: "#003147",
+        fontWeight: "bold",
+    },
     conn: {
-        width: '80%',
-        height: '80%',
+        width: 400,
+        height: 400,
         backgroundColor: 'whitesmoke',
         borderRadius: 20,
         alignItems: 'center',
@@ -68,5 +78,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderColor: "#003147",
         borderWidth: 1,
+        overflow: 'hidden'
     },
 });
