@@ -1,6 +1,7 @@
-import { Text, View, StyleSheet, Button, TextBase } from 'react-native'
+import { Text, View, StyleSheet, Button, TouchableOpacity, Dimensions } from 'react-native'
 import { useEffect, useState } from 'react';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import * as Clipboard from 'expo-clipboard';
 
 const Home = () => {
 
@@ -30,6 +31,10 @@ const Home = () => {
         return <Text>Impossible d'accéder à la caméra</Text>;
     }
 
+    const copyToClipboard = async () => {
+        await Clipboard.setStringAsync(Res);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Scanner un QRCode</Text>
@@ -37,11 +42,23 @@ const Home = () => {
             <View style={styles.conn}>
                 <BarCodeScanner
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                    style={{ height: 400, width: 400 }}
+                    style={{ height: 800, width: 800 }}
                 />
             </View>
-            <Text style={styles.textRes}>{Res}</Text>
-            {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+
+            <View style={styles.Btn}>
+                <Text style={styles.textRes} id="copy">{Res}</Text>
+            </View>
+
+            {scanned && <TouchableOpacity style={styles.appButtonContainer} onPress={() => setScanned(false) + setRes()}>
+                <Text style={styles.appButtonText}>Scanner à nouveau</Text>
+            </TouchableOpacity>}
+
+            {scanned && 
+                <TouchableOpacity style={styles.appButtonContainer} onPress={copyToClipboard}>
+                    <Text style={styles.appButtonText}>Copier le texte</Text>
+                </TouchableOpacity>
+            }
 
         </View>
     )
@@ -51,33 +68,49 @@ export default Home;
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: '#A6A6A6',
         flex: 1,
         alignItems: 'center',
         // justifyContent: 'center',
         margin: 0,
     },
     text: {
-        marginTop: 50,
+        marginTop: "6%",
+        marginBottom: "3%",
         fontSize: 40,
         color: "#003147",
         fontWeight: "bold",
     },
     textRes: {
-        marginVertical: 20,
+        marginTop: "3%",
         fontSize: 20,
         color: "#003147",
         fontWeight: "bold",
     },
     conn: {
-        width: 400,
-        height: 400,
-        backgroundColor: 'whitesmoke',
-        borderRadius: 20,
+        width: "90%",
+        height: 350,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 10,
-        borderColor: "#003147",
-        borderWidth: 1,
+        borderColor: "#FFF",
+        borderWidth: 10,
         overflow: 'hidden'
     },
+    appButtonContainer: {
+        marginVertical: "5%",
+        borderRadius: 50,
+        borderColor: "#FFF",
+        borderWidth: 5,
+        width:"75%",
+    },
+    appButtonText: {
+        marginVertical: "5%",
+        fontSize: 18,
+        color: "#fff",
+        fontWeight: "bold",
+        alignSelf: "center",
+        textTransform: "uppercase"
+    }
 });
