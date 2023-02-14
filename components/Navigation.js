@@ -1,7 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { AppRegistry } from 'react-native';
-import Home from '../screens/Home'
 import { NativeRouter, Route, Routes } from 'react-router-native';
+import Home from '../screens/Home';
+import Emprunter from '../screens/Emprunter';
+import Rendre from '../screens/Rendre'
 
 
 const Navigation = () => {
@@ -10,6 +12,8 @@ const Navigation = () => {
         <NativeRouter>
             <Routes>
                 <Route exact path='/' element={<Home />} />
+                <Route exact path='/emprunter' element={<Emprunter />} />
+                <Route exact path='/rendre' element={<Rendre />}/>
             </Routes>
         </NativeRouter>
     );
