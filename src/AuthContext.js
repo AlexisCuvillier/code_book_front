@@ -10,19 +10,27 @@ export const AuthProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState({});
     const [failLog, setFailLog] = useState(false);
 
+    const[logged, setLogged] = useState(false)
+
     const login = (Res) => {
 
         axios.post(`${BASE_URL}/login`, Res)
         .then(res => {
             let userInfo = res.data;
-            console.log('then',userInfo);
             setUserInfo(userInfo);
-            AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
+            AsyncStorage.setItem('userInfo', Res.code);
             setFailLog(false)
+            setLogged(true)
+            setTimeout(() => {
+                setLogged(false)
+                AsyncStorage.removeItem('userInfo')
+                setUserInfo({});
+              }, 1800000);
         })
         .catch(e => {
             console.log(`Login error : ${e}`);
             setFailLog(true);
+            setLogged(false)
         })
     };
 
@@ -31,6 +39,7 @@ return (
         value={{
             userInfo,
             failLog,
+            logged,
             login
         }}>
         {children}

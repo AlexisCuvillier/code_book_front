@@ -2,16 +2,20 @@ import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useContext, useState, useEffect } from 'react'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as Clipboard from 'expo-clipboard';
-import { json, Link } from 'react-router-native'
+import { Link } from 'react-router-native'
 import { AuthContext } from '../src/AuthContext'
+import { BASE_URL } from '../src/config';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
 
-    const { login, failLog } = useContext(AuthContext);
+    const { login, failLog, logged } = useContext(AuthContext);
     const [failCheck, setFailCheck] = useState(true)
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const [Res, setRes] = useState();
+    const [textTop, setTextTop] = useState('Scannez votre carte');
 
     const [log, setLog] = useState("");
 
@@ -25,10 +29,43 @@ const Home = () => {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-        setScanned(true);
-        // alert(`QRCode : \n` + `${data}`);
-        setRes(data)
-        login(JSON.parse(data))
+        if(!logged){
+            setScanned(true);
+            // alert(`QRCode : \n` + `${data}`);
+            setRes(data)
+            try{
+                login(JSON.parse(data))
+                setTextTop('Scanner un livre')
+                alert('Vous êtes connectez')
+            }catch(error)
+            {
+                // console.log(error)
+                alert(`Le QRCode est invalide`)
+            }
+        }else{
+            const userCode = AsyncStorage.getItem('userInfo', (err, result) => {
+                console.log(result);
+              })
+            setScanned(true);
+            try{
+                axios.put(`${BASE_URL}/${data}`, userCode)
+                .then(res => {
+                    let livreInfo = res.data;
+                    console.log('then',livreInfo);
+                })
+                .catch(e => {
+                    console.log(`Login error : ${e}`);
+                    alert(`Une erreur est survenue, veuillez réessayer ultérieurement`)
+                    AsyncStorage.getItem('userInfo', (err, result) => {
+                        console.log(result);
+                      })
+                    
+                })
+            }catch(error){
+                alert(`Livre invalide`)
+            }
+        }
+       
     };
 
     if (hasPermission === null) {
@@ -43,13 +80,13 @@ const Home = () => {
     };
 
     if (failLog && failCheck) {
-        alert('non')
+        alert(`Une erreur s'est produite, veuillez réessayer ultérieurement`)
         setFailCheck(false)
       }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Scannez votre carte</Text>
+            <Text style={styles.text}>{textTop}</Text>
 
             <View style={styles.conn}>
                 <BarCodeScanner
@@ -66,11 +103,11 @@ const Home = () => {
                 <Text style={styles.appButtonText}>Scanner à nouveau</Text>
             </TouchableOpacity>}
 
-            {scanned && 
+            {/* {scanned && 
                 <TouchableOpacity style={styles.appButtonContainer} onPress={copyToClipboard}>
                     <Text style={styles.appButtonText}>Copier le texte</Text>
                 </TouchableOpacity>
-            }
+            } */}
 
 <Link to={'/'}><Text style={styles.text}>Retour</Text></Link>
 
