@@ -1,14 +1,19 @@
-import { Text, View, StyleSheet, Button, TouchableOpacity, Dimensions } from 'react-native'
-import { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useContext, useState, useEffect } from 'react'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as Clipboard from 'expo-clipboard';
-import { Link } from 'react-router-native';
+import { json, Link } from 'react-router-native'
+import { AuthContext } from '../src/AuthContext'
 
 const Home = () => {
 
+    const { login, failLog } = useContext(AuthContext);
+    const [failCheck, setFailCheck] = useState(true)
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const [Res, setRes] = useState();
+
+    const [log, setLog] = useState("");
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
@@ -23,6 +28,7 @@ const Home = () => {
         setScanned(true);
         // alert(`QRCode : \n` + `${data}`);
         setRes(data)
+        login(JSON.parse(data))
     };
 
     if (hasPermission === null) {
@@ -36,6 +42,11 @@ const Home = () => {
         await Clipboard.setStringAsync(Res);
     };
 
+    if (failLog && failCheck) {
+        alert('non')
+        setFailCheck(false)
+      }
+
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Scannez votre carte</Text>
@@ -47,9 +58,9 @@ const Home = () => {
                 />
             </View>
 
-            <View style={styles.Btn}>
+            {/* <View style={styles.Btn}>
                 <Text style={styles.textRes} id="copy">{Res}</Text>
-            </View>
+            </View> */}
 
             {scanned && <TouchableOpacity style={styles.appButtonContainer} onPress={() => setScanned(false) + setRes()}>
                 <Text style={styles.appButtonText}>Scanner à nouveau</Text>
