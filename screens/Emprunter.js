@@ -16,6 +16,7 @@ const Home = () => {
     const [scanned, setScanned] = useState(false);
     const [Res, setRes] = useState();
     const [textTop, setTextTop] = useState('Scannez votre carte');
+    const [codeUser, setCodeUser] = useState('')
 
     const [log, setLog] = useState("");
 
@@ -43,25 +44,28 @@ const Home = () => {
                 alert(`Le QRCode est invalide`)
             }
         }else{
+            setScanned(true);
             const userCode = AsyncStorage.getItem('userInfo', (err, result) => {
                 console.log(result);
+                setCodeUser(JSON.parse(`{"user_id":"${result}"}`))
+                console.log(codeUser)
               })
-            setScanned(true);
             try{
-                axios.put(`${BASE_URL}/${data}`, userCode)
+                axios.put(`${BASE_URL}/borrow/${data}`, codeUser)
                 .then(res => {
                     let livreInfo = res.data;
                     console.log('then',livreInfo);
                 })
-                .catch(e => {
-                    console.log(`Login error : ${e}`);
+                .catch(error => {
+                    console.log(`Login error : ${error}`);
                     alert(`Une erreur est survenue, veuillez réessayer ultérieurement`)
-                    AsyncStorage.getItem('userInfo', (err, result) => {
-                        console.log(result);
-                      })
+                    // AsyncStorage.getItem('userInfo', (err, result) => {
+                    //     console.log(result, error);
+                    //   })
                     
                 })
             }catch(error){
+                console.log(error)
                 alert(`Livre invalide`)
             }
         }
