@@ -30,46 +30,45 @@ const Home = () => {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-        if(!logged){
+        if (!logged) {
             setScanned(true);
             // alert(`QRCode : \n` + `${data}`);
             setRes(data)
-            try{
+            try {
                 login(JSON.parse(data))
-                setTextTop('Scanner un livre')
                 alert('Vous êtes connectez')
-            }catch(error)
-            {
+                setTextTop('Scanner un livre')
+            } catch (error) {
                 // console.log(error)
                 alert(`Le QRCode est invalide`)
             }
-        }else{
+        } else {
             setScanned(true);
-            const userCode = AsyncStorage.getItem('userInfo', (err, result) => {
+                AsyncStorage.getItem('userInfo', (err, result) => {
                 console.log(result);
                 setCodeUser(JSON.parse(`{"user_id":"${result}"}`))
                 console.log(codeUser)
-              })
-            try{
+            })
+            try {
                 axios.put(`${BASE_URL}/borrow/${data}`, codeUser)
-                .then(res => {
-                    let livreInfo = res.data;
-                    console.log('then',livreInfo);
-                })
-                .catch(error => {
-                    console.log(`Login error : ${error}`);
-                    alert(`Une erreur est survenue, veuillez réessayer ultérieurement`)
-                    // AsyncStorage.getItem('userInfo', (err, result) => {
-                    //     console.log(result, error);
-                    //   })
-                    
-                })
-            }catch(error){
+                    .then(res => {
+                        let livreInfo = res.data;
+                        console.log('then', livreInfo);
+                    })
+                    .catch(error => {
+                        console.log(`emprunt error : ${error}`);
+                        alert(`Une erreur est survenue, veuillez réessayer ultérieurement`)
+                        // AsyncStorage.getItem('userInfo', (err, result) => {
+                        //     console.log(result, error);
+                        //   })
+
+                    })
+            } catch (error) {
                 console.log(error)
                 alert(`Livre invalide`)
             }
         }
-       
+
     };
 
     if (hasPermission === null) {
@@ -86,7 +85,7 @@ const Home = () => {
     if (failLog && failCheck) {
         alert(`Une erreur s'est produite, veuillez réessayer ultérieurement`)
         setFailCheck(false)
-      }
+    }
 
     return (
         <View style={styles.container}>
@@ -113,7 +112,7 @@ const Home = () => {
                 </TouchableOpacity>
             } */}
 
-<Link to={'/'}><Text style={styles.text}>Retour</Text></Link>
+            <Link to={'/'}><Text style={styles.text}>Retour</Text></Link>
 
         </View>
     )
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         borderColor: "#FFF",
         borderWidth: 5,
-        width:"75%",
+        width: "75%",
     },
     appButtonText: {
         marginVertical: "5%",

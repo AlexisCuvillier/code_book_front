@@ -3,12 +3,18 @@ import { useEffect, useState } from 'react';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as Clipboard from 'expo-clipboard';
 import { Link } from 'react-router-native';
+import axios from 'axios';
+import { BASE_URL } from '../src/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
 
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const [Res, setRes] = useState();
+    const [point, setPoint] = useState(false);
+    const [textTop, setTextTop] = useState('Scannez un point');
+    const [pointId, setPointId] = useState('')
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
@@ -20,10 +26,53 @@ const Home = () => {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-        setScanned(true);
-        // alert(`QRCode : \n` + `${data}`);
-        setRes(data)
-    };
+        if (!point) {
+            setScanned(true);
+            setRes(data)
+            try {
+                axios.get(`${BASE_URL}/selfservice/${data}`)
+                .then(res =>{
+                    let pointInfo = res.data;
+                    console.log('then', pointInfo)
+                    setPoint(true)
+                    setTextTop('Scanner le livre à rendre')
+                    AsyncStorage.setItem('pointId', data);
+                })
+                .catch(error => {
+                    console.log(`point fail`, error)
+                })
+            }
+            catch (error) {
+                console.log(error)
+                alert(`est invalide`)
+            }
+        } else {
+            setScanned(true);
+                AsyncStorage.getItem('pointId', (err, result) => {
+                console.log(result);
+                setPointId(JSON.parse(`{"self_service_id":"${result}"}`))
+                console.log(pointId)
+            })
+            try {
+                axios.put(`${BASE_URL}/render/${data}`, pointId)
+                    .then(res => {
+                        let livreInfo = res.data;
+                        console.log('then', livreInfo);
+                    })
+                    .catch(error => {
+                        console.log(`rendre error : ${error}`);
+                        alert(`Une erreur est survenue, veuillez réessayer ultérieurement`)
+                        // AsyncStorage.getItem('userInfo', (err, result) => {
+                        //     console.log(result, error);
+                        //   })
+
+                    })
+            } catch (error) {
+                console.log(error)
+                alert(` invalide`)
+            }
+        }
+    }
 
     if (hasPermission === null) {
         return <Text>En attente d'accès à la caméra</Text>;
@@ -32,13 +81,13 @@ const Home = () => {
         return <Text>Impossible d'accéder à la caméra</Text>;
     }
 
-    const copyToClipboard = async () => {
-        await Clipboard.setStringAsync(Res);
-    };
+    // const copyToClipboard = async () => {
+    //     await Clipboard.setStringAsync(Res);
+    // };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Scannez un Point</Text>
+            <Text style={styles.text}>{textTop}</Text>
 
             <View style={styles.conn}>
                 <BarCodeScanner
@@ -55,13 +104,13 @@ const Home = () => {
                 <Text style={styles.appButtonText}>Scanner à nouveau</Text>
             </TouchableOpacity>}
 
-            {scanned && 
+            {/* {scanned && 
                 <TouchableOpacity style={styles.appButtonContainer} onPress={copyToClipboard}>
                     <Text style={styles.appButtonText}>Copier le texte</Text>
                 </TouchableOpacity>
-            }
+            } */}
 
-<Link to={'/'}><Text style={styles.text}>Retour</Text></Link>
+            <Link to={'/'}><Text style={styles.text}>Retour</Text></Link>
 
         </View>
     )
@@ -106,7 +155,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         borderColor: "#FFF",
         borderWidth: 5,
-        width:"75%",
+        width: "75%",
     },
     appButtonText: {
         marginVertical: "5%",
