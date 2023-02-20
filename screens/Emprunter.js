@@ -36,7 +36,7 @@ const Home = () => {
             setRes(data)
             try {
                 login(JSON.parse(data))
-                alert('Vous êtes connectez')
+                alert('Vous êtes connecté')
                 setTextTop('Scanner un livre')
             } catch (error) {
                 // console.log(error)
@@ -47,13 +47,13 @@ const Home = () => {
                 AsyncStorage.getItem('userInfo', (err, result) => {
                 console.log(result);
                 setCodeUser(JSON.parse(`{"user_id":"${result}"}`))
-                console.log(codeUser)
             })
             try {
                 axios.put(`${BASE_URL}/borrow/${data}`, codeUser)
                     .then(res => {
                         let livreInfo = res.data;
                         console.log('then', livreInfo);
+                        alert("Le livre à bien etait emprunté")
                     })
                     .catch(error => {
                         console.log(`emprunt error : ${error}`);

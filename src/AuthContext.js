@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
 
     const login = (Res) => {
 
-        console.log(BASE_URL)
         axios.post(`${BASE_URL}/login`, Res)
         .then(res => {
             let userInfo = res.data;

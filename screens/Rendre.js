@@ -37,6 +37,7 @@ const Home = () => {
                     setPoint(true)
                     setTextTop('Scanner le livre à rendre')
                     AsyncStorage.setItem('pointId', data);
+                    alert("Point scanné")
                 })
                 .catch(error => {
                     console.log(`point fail`, error)
@@ -49,9 +50,8 @@ const Home = () => {
         } else {
             setScanned(true);
                 AsyncStorage.getItem('pointId', (err, result) => {
-                console.log(result);
+                console.log('result ==',result);
                 setPointId(JSON.parse(`{"self_service_id":"${result}"}`))
-                console.log(pointId)
             })
             try {
                 axios.put(`${BASE_URL}/render/${data}`, pointId)
